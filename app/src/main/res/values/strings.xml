@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">VKClient</string>
+    <string name="template_text">Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consecrate, adipisci velit...</string>
+    <string name="navigation_item_main">Главная</string>
+    <string name="navigation_item_favorite">Избранное</string>
+    <string name="navigation_item_profile">Профиль</string>
+</resources>
