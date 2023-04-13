@@ -132,15 +132,15 @@ private fun Statistics(
             val likesItem = statistics.getItemType(StatisticType.LIKES)
             IconWithText(icon = R.drawable.baseline_share_24, text = sharedItem.count.toString(),
                 onItemClick = {
-                    onShareClick(viewItem)
+                    onShareClick(sharedItem)
                 })
             IconWithText(icon = R.drawable.baseline_message_24, text = commentItem.count.toString(),
                 onItemClick = {
-                    onCommentClick(viewItem)
+                    onCommentClick(commentItem)
                 })
             IconWithText(icon = R.drawable.baseline_heart_broken_24, text = likesItem.count.toString(),
                 onItemClick = {
-                    onLikeClick(viewItem)
+                    onLikeClick(likesItem)
                 })
         }
     }

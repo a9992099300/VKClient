@@ -3,6 +3,7 @@ package com.a9992099300.vkclient.domain
 import com.a9992099300.vkclient.R
 
 data class FeedPost(
+    val id: Int = 0,
     val communityName: String = "/dev/null",
     val publicationDate: String = "14:00",
     val avatarResId: Int = R.drawable.ic_launcher_background,
