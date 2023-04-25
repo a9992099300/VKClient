@@ -2,44 +2,52 @@ package com.a9992099300.vkclient.ui.theme
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.clickable
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import com.a9992099300.vkclient.MainViewModel
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.a9992099300.vkclient.navigation.AppNavGraph
+import com.a9992099300.vkclient.navigation.rememberNavigationState
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun VKViewMainScreen(viewModel: MainViewModel) {
+fun VKViewMainScreen() {
+
+    val navigationState = rememberNavigationState()
+
     Scaffold(
         bottomBar = {
-            BottomNavigation() {
-                val selectedItem = remember {
-                    mutableStateOf(0)
-                }
+            BottomNavigation {
+                val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
+
                 val items = listOf(
                     NavigationItem.Home,
                     NavigationItem.Favorite,
                     NavigationItem.Profile
                 )
-                items.forEachIndexed { index, it ->
+                items.forEachIndexed { _, item ->
+                    val selected = navBackStackEntry?.destination?.hierarchy?.any {
+                        it.route == item.screen.route
+                    } ?: false
                     BottomNavigationItem(
-                        selected = selectedItem.value == index,
-                        onClick = { selectedItem.value = index },
+                        selected = selected,
+                        onClick = {
+                            if (!selected) {
+                                navigationState.navigateTo(item.screen.route)
+                            }
+                        },
                         icon = {
-                            Icon(it.icon, contentDescription = null)
+                            Icon(item.icon, contentDescription = null)
                         },
                         label = {
-                            Text(text = stringResource(id = it.titleResId))
+                            Text(text = stringResource(id = item.titleResId))
                         },
                         selectedContentColor = MaterialTheme.colors.onPrimary,
                         unselectedContentColor = MaterialTheme.colors.onSecondary
@@ -49,52 +57,45 @@ fun VKViewMainScreen(viewModel: MainViewModel) {
         }
 
     ) {
-        val feedPosts = viewModel.feedPosts.observeAsState(listOf())
-
-        LazyColumn(
-            modifier = Modifier.padding(it),
-            contentPadding = PaddingValues(
-                top = 16.dp,
-                start = 8.dp,
-                end = 8.dp,
-                bottom = 72.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(
-                items = feedPosts.value,
-                key = { it.id }
-            ) { feedPost ->
-                val dismissState = rememberDismissState()
-                if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-                    viewModel.remove(feedPost)
-                }
-
-                SwipeToDismiss(
-                    modifier = Modifier.animateItemPlacement(),
-                    state = dismissState,
-                    background = {},
-                    directions = setOf(DismissDirection.EndToStart)
-                ) {
-                    PostCard(
-                        modifier = Modifier,
-                        feedPost = feedPost,
-                        onCommentClick = { statistic ->
-                            viewModel.updateCount(feedPost, statistic)
-                        },
-                        onLikeClick = { statistic ->
-                            viewModel.updateCount(feedPost, statistic)
-                        },
-                        onViewClick = { statistic ->
-                            viewModel.updateCount(feedPost, statistic)
-                        },
-                        onShareClick = { statistic ->
-                            viewModel.updateCount(feedPost, statistic)
-                        },
+        AppNavGraph(
+            navHostController = navigationState.navHostController,
+            newFeedScreenContent = {
+                    HomeScreen(
+                        paddingValues = it,
+                        onCommentClickListener = { feedPost ->
+                            navigationState.navigateToComments(feedPost)
+                        }
                     )
-                }
+            },
+            commentsScreenContent = { feedPost ->
+                CommentsScreen (
+                    onBackPressed = {
+                        navigationState.navHostController.popBackStack()
+                    },
+                    feedPost = feedPost
+                )
+            },
+            favoriteScreenContent = {
+                TextCounter("Favorite")
+            },
+            profileScreenContent = {
+                TextCounter("Profile")
             }
-        }
+        )
 
     }
+}
+
+@Composable
+private fun TextCounter(name: String) {
+    var count by rememberSaveable {
+        mutableStateOf(0)
+    }
+    Text(
+        modifier = Modifier.clickable {
+            count++
+        },
+        text = "$name Count $count",
+        color = Color.Black
+    )
 }

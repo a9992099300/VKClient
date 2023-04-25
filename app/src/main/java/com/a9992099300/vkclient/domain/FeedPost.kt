@@ -1,7 +1,13 @@
 package com.a9992099300.vkclient.domain
 
+import android.os.Bundle
+import android.os.Parcelable
+import androidx.navigation.NavType
 import com.a9992099300.vkclient.R
+import com.google.gson.GsonBuilder
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class FeedPost(
     val id: Int = 0,
     val communityName: String = "/dev/null",
@@ -16,4 +22,28 @@ data class FeedPost(
         StatisticItem(type = StatisticType.LIKES, 27),
     )
 
-)
+) : Parcelable {
+
+    companion object {
+         val navigationType:NavType<FeedPost> = object : NavType<FeedPost>(false) {
+
+             override fun put(bundle: Bundle, key: String, value: FeedPost) {
+                 bundle.putParcelable(key, value)
+             }
+
+             @Suppress("DEPRECATION")
+             override fun get(bundle: Bundle, key: String): FeedPost {
+                 return bundle.getParcelable(key) ?: FeedPost()
+             }
+
+             override fun parseValue(value: String): FeedPost {
+                 val gson = GsonBuilder()
+                     .setLenient()
+                     .create()
+                 return gson.fromJson(value, FeedPost::class.java)
+             }
+         }
+     }
+
+
+}
