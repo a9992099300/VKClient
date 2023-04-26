@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.a9992099300.vkclient.ui.theme.ActivityResultTest
 import com.a9992099300.vkclient.ui.theme.VKClientTheme
 import com.a9992099300.vkclient.ui.theme.VKViewMainScreen
 
@@ -22,7 +23,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             VKClientTheme {
-                VKViewMainScreen()
+                ActivityResultTest()
+               // VKViewMainScreen()
             }
         }
     }
