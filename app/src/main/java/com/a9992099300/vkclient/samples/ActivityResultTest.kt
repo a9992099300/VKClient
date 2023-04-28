@@ -1,4 +1,4 @@
-package com.a9992099300.vkclient.ui.theme
+package com.a9992099300.vkclient.samples
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult

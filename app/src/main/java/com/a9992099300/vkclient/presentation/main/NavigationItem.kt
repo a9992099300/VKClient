@@ -1,4 +1,4 @@
-package com.a9992099300.vkclient.ui.theme
+package com.a9992099300.vkclient.presentation.main
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite

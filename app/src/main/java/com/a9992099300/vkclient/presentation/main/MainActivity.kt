@@ -1,7 +1,8 @@
-package com.a9992099300.vkclient
+package com.a9992099300.vkclient.presentation.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -11,10 +12,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import com.a9992099300.vkclient.ui.theme.ActivityResultTest
-import com.a9992099300.vkclient.ui.theme.VKClientTheme
-import com.a9992099300.vkclient.ui.theme.VKViewMainScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.a9992099300.vkclient.ui.theme.*
+import com.vk.api.sdk.VK
+import com.vk.api.sdk.auth.VKScope
 
 class MainActivity : ComponentActivity() {
 
@@ -23,8 +26,23 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             VKClientTheme {
-                ActivityResultTest()
-               // VKViewMainScreen()
+               val viewModel: MainViewModel = viewModel()
+                val authState = viewModel.uthState.observeAsState()
+
+               val authLauncher = rememberLauncherForActivityResult(
+                    contract = VK.getVKAuthActivityResultContract()
+                ) {
+                   viewModel.performAuthResult(it)
+                }
+
+                when (authState.value) {
+                    is AuthState.Authorized -> VKViewMainScreen()
+                    is AuthState.NotAuthorized -> LoginScreen {
+                        authLauncher.launch(listOf(VKScope.WALL))
+                    }
+                    else -> {}
+                }
+
             }
         }
     }
@@ -90,3 +108,7 @@ private fun Test() {
         )
     }
 }
+
+//                SideEffect {
+//                    authLauncher.launch(arrayListOf(VKScope.WALL))
+//                }

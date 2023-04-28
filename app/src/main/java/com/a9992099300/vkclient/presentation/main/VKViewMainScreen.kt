@@ -1,4 +1,4 @@
-package com.a9992099300.vkclient.ui.theme
+package com.a9992099300.vkclient.presentation.main
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -13,6 +13,8 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.a9992099300.vkclient.navigation.AppNavGraph
 import com.a9992099300.vkclient.navigation.rememberNavigationState
+import com.a9992099300.vkclient.presentation.comments.CommentsScreen
+import com.a9992099300.vkclient.ui.theme.NewsFeedScreen
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
@@ -60,7 +62,7 @@ fun VKViewMainScreen() {
         AppNavGraph(
             navHostController = navigationState.navHostController,
             newFeedScreenContent = {
-                    HomeScreen(
+                    NewsFeedScreen(
                         paddingValues = it,
                         onCommentClickListener = { feedPost ->
                             navigationState.navigateToComments(feedPost)
