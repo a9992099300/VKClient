@@ -1,6 +1,5 @@
 package com.a9992099300.vkclient.presentation.news
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -14,10 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.a9992099300.vkclient.R
 import com.a9992099300.vkclient.domain.FeedPost
 import com.a9992099300.vkclient.domain.StatisticItem
@@ -28,10 +29,10 @@ import com.a9992099300.vkclient.domain.StatisticType
 fun PostCard(
     modifier: Modifier,
     feedPost: FeedPost,
-    onLikeClick:(StatisticItem) -> Unit,
-    onShareClick:(StatisticItem) -> Unit,
-    onViewClick:(StatisticItem) -> Unit,
-    onCommentClick:(StatisticItem) -> Unit,
+    onLikeClick: (StatisticItem) -> Unit,
+    onShareClick: (StatisticItem) -> Unit,
+    onViewClick: (StatisticItem) -> Unit,
+    onCommentClick: (StatisticItem) -> Unit,
 ) {
     Card(modifier = modifier) {
         Column(
@@ -44,21 +45,24 @@ fun PostCard(
                 color = MaterialTheme.colors.onPrimary
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Image(
+            AsyncImage(
+                model = feedPost.contentImageUrl,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
-                painter = painterResource(
-                    id = feedPost.contentImageId
-                ),
+                    .wrapContentHeight(),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth
 
             )
             Spacer(modifier = Modifier.height(8.dp))
             Statistics(
-                statistics =  feedPost.statistics,
-                onLikeClick, onShareClick, onViewClick, onCommentClick)
+                statistics = feedPost.statistics,
+                onLikeClick,
+                onShareClick,
+                onViewClick,
+                onCommentClick,
+                feedPost.isLiked
+            )
         }
     }
 }
@@ -72,11 +76,11 @@ private fun PostHeader(feedPost: FeedPost) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
+            AsyncImage(
+                model = feedPost.communityImageUrl,
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape),
-                painter = painterResource(id = feedPost.avatarResId),
                 contentDescription = null
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -104,10 +108,11 @@ private fun PostHeader(feedPost: FeedPost) {
 @Composable
 private fun Statistics(
     statistics: List<StatisticItem>,
-    onLikeClick:(StatisticItem) -> Unit,
-    onShareClick:(StatisticItem) -> Unit,
-    onViewClick:(StatisticItem) -> Unit,
-    onCommentClick:(StatisticItem) -> Unit,
+    onLikeClick: (StatisticItem) -> Unit,
+    onShareClick: (StatisticItem) -> Unit,
+    onViewClick: (StatisticItem) -> Unit,
+    onCommentClick: (StatisticItem) -> Unit,
+    isFavorite: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -116,7 +121,7 @@ private fun Statistics(
         Row(modifier = Modifier.weight(1f)) {
             IconWithText(
                 icon = R.drawable.baseline_remove_red_eye_24,
-                text = viewItem.count.toString(),
+                text = formatStatisticCount(viewItem.count),
                 onItemClick = {
                     onViewClick(viewItem)
                 }
@@ -129,31 +134,49 @@ private fun Statistics(
             val sharedItem = statistics.getItemType(StatisticType.SHARES)
             val commentItem = statistics.getItemType(StatisticType.COMMENTS)
             val likesItem = statistics.getItemType(StatisticType.LIKES)
-            IconWithText(icon = R.drawable.baseline_share_24, text = sharedItem.count.toString(),
+            IconWithText(icon = R.drawable.baseline_share_24,
+                text = formatStatisticCount(sharedItem.count),
                 onItemClick = {
                     onShareClick(sharedItem)
                 })
-            IconWithText(icon = R.drawable.baseline_message_24, text = commentItem.count.toString(),
+            IconWithText(icon = R.drawable.baseline_message_24,
+                text = formatStatisticCount(commentItem.count),
                 onItemClick = {
                     onCommentClick(commentItem)
                 })
-            IconWithText(icon = R.drawable.baseline_heart_broken_24, text = likesItem.count.toString(),
+            IconWithText(icon =
+            if (isFavorite) R.drawable.baseline_heart_broken_24_red else
+                R.drawable.baseline_heart_broken_24,
+                text = formatStatisticCount(likesItem.count),
                 onItemClick = {
                     onLikeClick(likesItem)
-                })
+                },
+            tint = if (isFavorite) Color.Red else MaterialTheme.colors.onSecondary
+            )
         }
     }
 }
 
+private fun formatStatisticCount(count: Int): String {
+    return if (count > 100_000) {
+        String.format("%sK", (count / 1000))
+    } else if (count > 1000) {
+        String.format("%.1fK", (count / 1000f))
+    } else {
+        count.toString()
+    }
+}
+
 private fun List<StatisticItem>.getItemType(type: StatisticType): StatisticItem {
-    return this.find { it.type == type } ?: throw  IllegalStateException()
+    return this.find { it.type == type } ?: throw IllegalStateException()
 }
 
 @Composable
 private fun IconWithText(
     icon: Int,
     text: String,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    tint: Color = MaterialTheme.colors.onSecondary
 ) {
     Row(
         modifier = Modifier.clickable {
@@ -161,8 +184,9 @@ private fun IconWithText(
         },
     ) {
         Icon(
+            modifier = Modifier.size(20.dp),
             painter = painterResource(id = icon), contentDescription = null,
-            tint = MaterialTheme.colors.onSecondary
+            tint = tint
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = text, color = MaterialTheme.colors.onSecondary)

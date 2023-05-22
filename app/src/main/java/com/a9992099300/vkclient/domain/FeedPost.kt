@@ -3,25 +3,20 @@ package com.a9992099300.vkclient.domain
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.navigation.NavType
-import com.a9992099300.vkclient.R
 import com.google.gson.GsonBuilder
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class FeedPost(
-    val id: Int = 0,
-    val communityName: String = "/dev/null",
-    val publicationDate: String = "14:00",
-    val avatarResId: Int = R.drawable.ic_launcher_background,
-    val contentText: String = "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consecrate, adipisci velit...",
-    val contentImageId: Int = R.drawable.ic_launcher_background,
-    val statistics: List<StatisticItem> = listOf(
-        StatisticItem(type = StatisticType.VIEWS, 966),
-        StatisticItem(type = StatisticType.SHARES, 7),
-        StatisticItem(type = StatisticType.COMMENTS, 8),
-        StatisticItem(type = StatisticType.LIKES, 27),
-    )
-
+    val id: Long,
+    val communityId: Long,
+    val communityName: String,
+    val publicationDate: String,
+    val communityImageUrl: String,
+    val contentText: String,
+    val contentImageUrl: String?,
+    val statistics: List<StatisticItem>,
+    val isLiked: Boolean
 ) : Parcelable {
 
     companion object {
@@ -32,8 +27,8 @@ data class FeedPost(
              }
 
              @Suppress("DEPRECATION")
-             override fun get(bundle: Bundle, key: String): FeedPost {
-                 return bundle.getParcelable(key) ?: FeedPost()
+             override fun get(bundle: Bundle, key: String): FeedPost? {
+                 return bundle.getParcelable(key)
              }
 
              override fun parseValue(value: String): FeedPost {

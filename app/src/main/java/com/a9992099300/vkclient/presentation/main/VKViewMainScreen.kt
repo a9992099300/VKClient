@@ -14,7 +14,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.a9992099300.vkclient.navigation.AppNavGraph
 import com.a9992099300.vkclient.navigation.rememberNavigationState
 import com.a9992099300.vkclient.presentation.comments.CommentsScreen
-import com.a9992099300.vkclient.ui.theme.NewsFeedScreen
+import com.a9992099300.vkclient.presentation.news.NewsFeedScreen
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)

@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
                 when (authState.value) {
                     is AuthState.Authorized -> VKViewMainScreen()
                     is AuthState.NotAuthorized -> LoginScreen {
-                        authLauncher.launch(listOf(VKScope.WALL))
+                        authLauncher.launch(listOf(VKScope.WALL, VKScope.FRIENDS))
                     }
                     else -> {}
                 }
